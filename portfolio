@@ -1,182 +1,391 @@
-import tkinter as tk                     
-from tkinter import ttk                 
-from tkinter import messagebox            
-import sqlite3 as sql                   
-  
-  
-def add_task():  
-    
-    task_string = task_field.get()  
-      
-    if len(task_string) == 0:  
-          
-        messagebox.showinfo('Error', 'Field is Empty.')  
-    else:  
-         
-        tasks.append(task_string)  
-      
-        the_cursor.execute('insert into tasks values (?)', (task_string ,))  
-    
-        list_update()  
-     
-        task_field.delete(0, 'end')  
-  
-  
-def list_update():  
-      
-    clear_list()  
-  
-    for task in tasks:  
-          
-        task_listbox.insert('end', task)  
-  
-  
-def delete_task():  
-      
-    try:  
-        
-        the_value = task_listbox.get(task_listbox.curselection())  
-          
-        if the_value in tasks:  
-            # removing the task from the list  
-            tasks.remove(the_value)  
-            # calling the function to update the list  
-            list_update()  
-            # using the execute() method to execute a SQL statement  
-            the_cursor.execute('delete from tasks where title = ?', (the_value,))  
-    except:  
-     
-        messagebox.showinfo('Error', 'No Task Selected. Cannot Delete.')        
-  
-# function to delete all tasks from the list  
-def delete_all_tasks():   
-    message_box = messagebox.askyesno('Delete All', 'Are you sure?')  
-    if message_box == True:  
-        while(len(tasks) != 0):  
-            tasks.pop()    
-        the_cursor.execute('delete from tasks')  
-        list_update()  
-def clear_list():    
-    task_listbox.delete(0, 'end')  
-  
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>portfolio</title>
+    <meta name="description" content="Portfolio project internship task" />
 
-def close():    
-    print(tasks)   
-    guiWindow.destroy()  
-  
-def retrieve_database():    
-    while(len(tasks) != 0):  
-        tasks.pop()  
-    for row in the_cursor.execute('select title from tasks'):  
-        tasks.append(row[0])  
-  
-# main function  
-if __name__ == "__main__":  
-    guiWindow = tk.Tk()  
-    guiWindow.title("To-Do List Manager - JAVATPOINT")  
-    guiWindow.geometry("500x450+750+250")  
-    guiWindow.resizable(0, 0)   
-    guiWindow.configure(bg = "#FAEBD7")    
-    the_connection = sql.connect('listOfTasks.db')  
-    the_cursor = the_connection.cursor()  
-    the_cursor.execute('create table if not exists tasks (title text)')  
-  
-    # defining an empty list  
-    tasks = []  
-      
-    # defining frames using the tk.Frame() widget  
-    header_frame = tk.Frame(guiWindow, bg = "#FAEBD7")  
-    functions_frame = tk.Frame(guiWindow, bg = "#FAEBD7")  
-    listbox_frame = tk.Frame(guiWindow, bg = "#FAEBD7")  
-  
-    # using the pack() method to place the frames in the application  
-    header_frame.pack(fill = "both")  
-    functions_frame.pack(side = "left", expand = True, fill = "both")  
-    listbox_frame.pack(side = "right", expand = True, fill = "both")  
-      
-    # defining a label using the ttk.Label() widget  
-    header_label = ttk.Label(  
-        header_frame,  
-        text = "The To-Do List",  
-        font = ("Brush Script MT", "30"),  
-        background = "#FAEBD7",  
-        foreground = "#8B4513"  
-    )  
-    # using the pack() method to place the label in the application  
-    header_label.pack(padx = 20, pady = 20)  
-  
-    # defining another label using the ttk.Label() widget  
-    task_label = ttk.Label(  
-        functions_frame,  
-        text = "Enter the Task:",  
-        font = ("Consolas", "11", "bold"),  
-        background = "#FAEBD7",  
-        foreground = "#000000"  
-    )  
- 
-    task_label.place(x = 30, y = 40)  
-      
-    # defining an entry field using the ttk.Entry() widget  
-    task_field = ttk.Entry(  
-        functions_frame,  
-        font = ("Consolas", "12"),  
-        width = 18,  
-        background = "#FFF8DC",  
-        foreground = "#A52A2A"  
-    )  
-    # using the place() method to place the entry field in the application  
-    task_field.place(x = 30, y = 80)  
-  
-    # adding buttons to the application using the ttk.Button() widget  
-    add_button = ttk.Button(  
-        functions_frame,  
-        text = "Add Task",  
-        width = 24,  
-        command = add_task  
-    )  
-    del_button = ttk.Button(  
-        functions_frame,  
-        text = "Delete Task",  
-        width = 24,  
-        command = delete_task  
-    )  
-    del_all_button = ttk.Button(  
-        functions_frame,  
-        text = "Delete All Tasks",  
-        width = 24,  
-        command = delete_all_tasks  
-    )  
-    exit_button = ttk.Button(  
-        functions_frame,  
-        text = "Exit",  
-        width = 24,  
-        command = close  
-    )  
-    # using the place() method to set the position of the buttons in the application  
-    add_button.place(x = 30, y = 120)  
-    del_button.place(x = 30, y = 160)  
-    del_all_button.place(x = 30, y = 200)  
-    exit_button.place(x = 30, y = 240)  
-  
-    # defining a list box using the tk.Listbox() widget  
-    task_listbox = tk.Listbox(  
-        listbox_frame,  
-        width = 26,  
-        height = 13,  
-        selectmode = 'SINGLE',  
-        background = "#FFFFFF",  
-        foreground = "#000000",  
-        selectbackground = "#CD853F",  
-        selectforeground = "#FFFFFF"  
-    )  
-    # using the place() method to place the list box in the application  
-    task_listbox.place(x = 10, y = 20)  
-  
-    # calling some functions  
-    retrieve_database()  
-    list_update()  
-    # using the mainloop() method to run the application  
-    guiWindow.mainloop()  
-    # establishing the connection with database  
-    the_connection.commit()  
-    the_cursor.close()  
+    <link rel="stylesheet" href="css/style.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header class="header">
+      <div class="header__content">
+        <div class="header__logo-container">
+          <div class="header__logo-img-cont">
+            <img
+              src="C:\Users\DELL\Downloads\bitmoji-20180730041725 - 2.png"
+              alt="Somya Logo Image"
+              class="header__logo-img"
+            />
+          </div>
+          <span class="header__logo-sub">SOMYA KISLAY</span>
+        </div>
+        <div class="header__main">
+          <ul class="header__links">
+            <li class="header__link-wrapper">
+              <a href="./index.html" class="header__link"> Home </a>
+            </li>
+            <li class="header__link-wrapper">
+              <a href="./index.html#about" class="header__link">About </a>
+            </li>
+            <li class="header__link-wrapper">
+              <a href="./index.html#projects" class="header__link">
+                Projects
+              </a>
+            </li>
+            <li class="header__link-wrapper">
+              <a href="./index.html#contact" class="header__link"> Contact </a>
+            </li>
+          </ul>
+          <div class="header__main-ham-menu-cont">
+            <img
+              src="./assets/svg/ham-menu.svg"
+              alt="hamburger menu"
+              class="header__main-ham-menu"
+            />
+            <img
+              src="./assets/svg/ham-menu-close.svg"
+              alt="hamburger menu close"
+              class="header__main-ham-menu-close d-none"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="header__sm-menu">
+        <div class="header__sm-menu-content">
+          <ul class="header__sm-menu-links">
+            <li class="header__sm-menu-link">
+              <a href="./index.html"> Home </a>
+            </li>
+
+            <li class="header__sm-menu-link">
+              <a href="./index.html#about"> About </a>
+            </li>
+
+            <li class="header__sm-menu-link">
+              <a href="./index.html#projects"> Projects </a>
+            </li>
+
+            <li class="header__sm-menu-link">
+              <a href="./index.html#contact"> Contact </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </header>
+    <section class="home-hero">
+      <div class="home-hero__content">
+        <h1 class="heading-primary">Hey, My name is Somya Kislay</h1>
+        <div class="home-hero__info">
+          <p class="text-primary">
+            I am currently an udergrad CSE student studying at Birla Institute Of Technology.
+            My interests lies in the field of technologies.
+          </p>
+        </div>
+        <div class="home-hero__cta">
+          <a href="./#projects" class="btn btn--bg">Projects</a>
+        </div>
+      </div>
+      <div class="home-hero__socials">
+        <div class="home-hero__social">
+          <a href="#" class="home-hero__social-icon-link">
+            <img
+              src="./assets/png/linkedin-ico.png"
+              alt="icon"
+              class="home-hero__social-icon"
+            />
+          </a>
+        </div>
+        <div class="home-hero__social">
+          <a href="#" class="home-hero__social-icon-link">
+            <img
+              src="./assets/png/github-ico.png"
+              alt="icon"
+              class="home-hero__social-icon"
+            />
+          </a>
+        </div>
+        <div class="home-hero__social">
+          <a href="#" class="home-hero__social-icon-link">
+            <img
+              src="./assets/png/twitter-ico.png"
+              alt="icon"
+              class="home-hero__social-icon"
+            />
+          </a>
+        </div>
+        <div class="home-hero__social">
+          <a href="#" class="home-hero__social-icon-link">
+            <img
+              src="./assets/png/yt-ico.png"
+              alt="icon"
+              class="home-hero__social-icon"
+            />
+          </a>
+        </div>
+        <div class="home-hero__social">
+          <a
+            href="#"
+            class="home-hero__social-icon-link home-hero__social-icon-link--bd-none"
+          >
+            <img
+              src="./assets/png/insta-ico.png"
+              alt="icon"
+              class="home-hero__social-icon"
+            />
+          </a>
+        </div>
+      </div>
+      <div class="home-hero__mouse-scroll-cont">
+        <div class="mouse"></div>
+      </div>
+    </section>
+    <section id="about" class="about sec-pad">
+      <div class="main-container">
+        <h2 class="heading heading-sec heading-sec__mb-med">
+          <span class="heading-sec__main">About Me</span>
+          <span class="heading-sec__sub">
+            Hi, myself Somya. I am a CSE undergrad from Bit,Mesra. 
+            Checkout my connections below.
+          </span>
+        </h2>
+        <div class="about__content">
+          <div class="about__content-main">
+            <h3 class="about__content-title">Get to know me!</h3>
+            <div class="about__content-details">
+              <p class="about__content-details-para">
+                Hey! It's
+                <strong>SOMYA KISLAY</strong>
+                and I'm a <strong> Frontend Web Developer </strong> located in
+                Los Angeles. I've done
+                <strong> internships </strong>
+                projects and freelancing to create
+                <strong>digital products </strong>
+                for my personal growth.
+              </p>
+              <p class="about__content-details-para">
+                I'm a bit of a technology lover. Over the years, I've used
+                developed my interest in this field. Feel free to
+                <strong>contact</strong> me here.
+              </p>
+            </div>
+            <a href="./#contact" class="btn btn--med btn--theme dynamicBgClr"
+              >Contact</a
+            >
+          </div>
+          <div class="about__content-skills">
+            <h3 class="about__content-title">My Skills</h3>
+            <div class="skills">
+              <div class="skills__skill">HTML</div>
+              <div class="skills__skill">CSS</div>
+              <div class="skills__skill">JavaScript</div>
+              <div class="skills__skill">React</div>
+              <div class="skills__skill">SASS</div>
+              <div class="skills__skill">GIT</div>
+              
+              <div class="skills__skill">Wordpress</div>
+            
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="projects" class="projects sec-pad">
+      <div class="main-container">
+        <h2 class="heading heading-sec heading-sec__mb-bg">
+          <span class="heading-sec__main">Projects</span>
+          <span class="heading-sec__sub">
+          
+          </span>
+        </h2>
+
+        <div class="projects__content">
+          <div class="projects__row">
+            <div class="projects__row-img-cont">
+              <img
+                src="./assets/jpeg/project-mockup-example.jpeg"
+                alt="Software Screenshot"
+                class="projects__row-img"
+                loading="lazy"
+              />
+            </div>
+            <div class="projects__row-content">
+              <h3 class="projects__row-content-title">Project 1</h3>
+              <p class="projects__row-content-desc">
+               
+              </p>
+              <a
+                href="./project-1.html"
+                class="btn btn--med btn--theme dynamicBgClr"
+                target="_blank"
+                >Case Study</a
+              >
+            </div>
+          </div>
+          <div class="projects__row">
+            <div class="projects__row-img-cont">
+              <img
+                src="./assets/jpeg/project-mockup-example.jpeg"
+                alt="Software Screenshot"
+                class="projects__row-img"
+                loading="lazy"
+              />
+            </div>
+            <div class="projects__row-content">
+              <h3 class="projects__row-content-title">Project 2</h3>
+              <p class="projects__row-content-desc">
+             
+              </p>
+              <a
+                href="./project-2.html"
+                class="btn btn--med btn--theme dynamicBgClr"
+                target="_blank"
+                >Case Study</a
+              >
+            </div>
+          </div>
+          <div class="projects__row">
+            <div class="projects__row-img-cont">
+              <img
+                src="./assets/jpeg/project-mockup-example.jpeg"
+                alt="Software Screenshot"
+                class="projects__row-img"
+                loading="lazy"
+              />
+            </div>
+            <div class="projects__row-content">
+              <h3 class="projects__row-content-title">Project 3</h3>
+              <p class="projects__row-content-desc">
+               
+              </p>
+              <a
+                href="./project-3.html"
+                class="btn btn--med btn--theme dynamicBgClr"
+                target="_blank"
+                >Case Study</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="contact" class="contact sec-pad dynamicBg">
+      <div class="main-container">
+        <h2 class="heading heading-sec heading-sec__mb-med">
+          <span class="heading-sec__main heading-sec__main--lt">Contact</span>
+          <span class="heading-sec__sub heading-sec__sub--lt">
+        
+          </span>
+        </h2>
+        <div class="contact__form-container">
+          <form action="#" class="contact__form">
+            <div class="contact__form-field">
+              <label class="contact__form-label" for="name">Name</label>
+              <input
+                required
+                placeholder="Enter Your Name"
+                type="text"
+                class="contact__form-input"
+                name="name"
+                id="name"
+              />
+            </div>
+            <div class="contact__form-field">
+              <label class="contact__form-label" for="email">Email</label>
+              <input
+                required
+                placeholder="Enter Your Email"
+                type="text"
+                class="contact__form-input"
+                name="email"
+                id="email"
+              />
+            </div>
+            <div class="contact__form-field">
+              <label class="contact__form-label" for="message">Message</label>
+              <textarea
+                required
+                cols="30"
+                rows="10"
+                class="contact__form-input"
+                placeholder="Enter Your Message"
+                name="message"
+                id="message"
+              ></textarea>
+            </div>
+            <button type="submit" class="btn btn--theme contact__btn">
+              Submit
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+    <footer class="main-footer">
+      <div class="main-container">
+        <div class="main-footer__upper">
+          <div class="main-footer__row main-footer__row-1">
+            <h2 class="heading heading-sm main-footer__heading-sm">
+              <span>Social</span>
+            </h2>
+            <div class="main-footer__social-cont">
+              <a target="_blank" rel="noreferrer" href="#">
+                <img
+                  class="main-footer__icon"
+                  src="./assets/png/linkedin-ico.png"
+                  alt="icon"
+                />
+              </a>
+              <a target="_blank" rel="noreferrer" href="#">
+                <img
+                  class="main-footer__icon"
+                  src="./assets/png/github-ico.png"
+                  alt="icon"
+                />
+              </a>
+              <a target="_blank" rel="noreferrer" href="#">
+                <img
+                  class="main-footer__icon"
+                  src="./assets/png/twitter-ico.png"
+                  alt="icon"
+                />
+              </a>
+              <a target="_blank" rel="noreferrer" href="#">
+                <img
+                  class="main-footer__icon"
+                  src="./assets/png/yt-ico.png"
+                  alt="icon"
+                />
+              </a>
+              <a target="_blank" rel="noreferrer" href="#">
+                <img
+                  class="main-footer__icon main-footer__icon--mr-none"
+                  src="./assets/png/insta-ico.png"
+                  alt="icon"
+                />
+              </a>
+            </div>
+          </div>
+          <div class="main-footer__row main-footer__row-2">
+            <h4 class="heading heading-sm text-lt">SOMYA KISLAY</h4>
+            <p class="main-footer__short-desc">
+             
+          </div>
+        </div>
+
+        <!-- If you give me some credit or shoutout here by linking to my website, then it will be a big thing for me and will help me a lot :) -->
+        
+      </div>
+    </footer>
+
+    <script src="./index.js"></script>
+  </body>
+</html>
